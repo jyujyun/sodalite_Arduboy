@@ -23,18 +23,23 @@ char muki = 0;
 char hp = 4;
 char muteki = 0;
 
-
 int t1x = 32;
 int t1y = 32;
-char t1h = 1;
+char t1h = 30;
+
+int t2x = 32;
+int t2y = 32;
+char t2h = 30;
 
 int pli = m1;       //自分の画像
 int plm = m1_mask;  //マスク
 
 char count = 0;
+char items[4];
+char cur = 0;
 
 char alock = 0;
-
+char xlock = 0;
 char i = 0;
 
 int balls[3][4];
@@ -138,34 +143,122 @@ void loop() {
             }
             else
             {
-              muteki = 60;
+              muteki = 30;
             }
 
         }
       }
+      else if (t1h > 1)
+      {
+        t1h -= 1;
+      }
+
+      if (t2h == 1 && !(t1x + 8 >= t2x && t1x <= t2x + 8 && t1y + 8 >= t2y && t1y <= t2y + 8)) {
+        if (x < t2x && t2x > 0) {
+
+          if (t2x % 8 == 0 && (block_map[(t2x / 8) - 1][t2y / 8] > snum || (t2y % 8 != 0 && block_map[(t2x / 8) - 1][(t2y / 8) + 1] > snum))) {
+
+          } else {
+            t2x -= 1;
+          }
+        }
+        if (y < t2y && t2y > 0) {
+
+          if (t2y % 8 == 0 && (block_map[t2x / 8][(t2y / 8) - 1] > snum || (t2x % 8 != 0 && block_map[(t2x / 8) + 1][(t2y / 8) - 1] > snum))) {
+
+          } else {
+            t2y -= 1;
+          }
+        }
+        if (x > t2x && t2x < 88) {
+          if (t2x % 8 == 0 && (block_map[(t2x / 8) + 1][t2y / 8] > snum || (t2y % 8 != 0 && block_map[(t2x / 8) + 1][(t2y / 8) + 1] > snum))) {
+
+          } else {
+            t2x += 1;
+          }
+        }
+        if (y > t2y && t2y < 56) {
+          if (t2y % 8 == 0 && (block_map[t2x / 8][t2y / 8 + 1] > snum || (t2x % 8 != 0 && block_map[(t2x / 8) + 1][(t2y / 8) + 1] > snum))) {
+
+          } else {
+            t2y += 1;
+          }
+        }
+        if (x + 8 >= t2x && x <= t2x + 8 && y + 8 >= t2y && y <= t2y + 8 && muteki == 0)
+        {
+            hp -= 1;
+            if (hp == 0)
+            {
+              mode = 1;
+            }
+            else
+            {
+              muteki = 30;
+            }
+
+        }
+      }
+      else if (t2h > 1)
+      {
+        t2h -= 1;
+      }
+
     }
 
     if (arduboy.pressed(A_BUTTON) == 1 && alock == 0) {
+      if (xlock == 1)
+      {
+        items[cur] = 0;
+      }
       alock = 1;
-      if (balls[0][3] == 0) {
-        balls[0][0] = x;
-        balls[0][1] = y;
-        balls[0][2] = muki;
-        balls[0][3] = 1;
-      } else if (balls[1][3] == 0) {
-        balls[1][0] = x;
-        balls[1][1] = y;
-        balls[1][2] = muki;
-        balls[1][3] = 1;
-      } else if (balls[2][3] == 0) {
-        balls[2][0] = x;
-        balls[2][1] = y;
-        balls[2][2] = muki;
-        balls[2][3] = 1;
+      if (items[cur] >= 11 && items[cur] <= 14)
+      {
+        items[cur] -= 1;
+        if (items[cur] == 10)
+        {
+          items[cur] = 0;
+        }
+        if (balls[0][3] == 0) {
+          balls[0][0] = x;
+          balls[0][1] = y;
+          balls[0][2] = muki;
+          balls[0][3] = 1;
+        } else if (balls[1][3] == 0) {
+          balls[1][0] = x;
+          balls[1][1] = y;
+          balls[1][2] = muki;
+          balls[1][3] = 1;
+        } else if (balls[2][3] == 0) {
+          balls[2][0] = x;
+          balls[2][1] = y;
+          balls[2][2] = muki;
+          balls[2][3] = 1;
+        }
+      }
+      else if (items[cur] == 7)
+      {
+        items[cur] = 0;
+        hp = 4;
+      }
+      else if (items[cur] == 8)
+      {
+        items[cur] = 0;
+        init_set();
       }
     }
     if (arduboy.pressed(A_BUTTON) == 0) {
       alock = 0;
+    }
+    if (arduboy.pressed(B_BUTTON) == 1 && xlock == 0){
+      xlock = 1;
+      cur += 1;
+      if (cur == 4)
+      {
+        cur = 0;
+      }
+    }
+    if (arduboy.pressed(B_BUTTON) == 0){
+      xlock = 0;
     }
     for (i = 0; i < 3; i++) {
 
@@ -187,6 +280,11 @@ void loop() {
           balls[i][3] = 2;
           t1h = 0;
         }
+        if (balls[i][0] >= t2x && balls[i][0] <= t2x + 8 && balls[i][1] >= t2y && balls[i][1] <= t2y + 8 && t2h == 1)
+        {
+          balls[i][3] = 2;
+          t2h = 0;
+        }
 
         Sprites::drawExternalMask(balls[i][0], balls[i][1], ball, ball_mask, 0, 0);
       } else if (balls[i][3] < 10 && balls[i][3] > 1) {
@@ -201,10 +299,41 @@ void loop() {
     {
       init_set();
     }
+    else if(block_map[(x + 4) / 8][(y + 4) / 8] < snum && block_map[(x + 4) / 8][(y + 4) / 8] > 4)
+    {
+      if (items[0] == 0)
+      {
+        items[0] = block_map[(x + 4) / 8][(y + 4) / 8];
+        block_map[(x + 4) / 8][(y + 4) / 8] = 0;
+      }
+      else if (items[1] == 0)
+      {
+        items[1] = block_map[(x + 4) / 8][(y + 4) / 8];
+        block_map[(x + 4) / 8][(y + 4) / 8] = 0;
+      }
+      else if (items[2] == 0)
+      {
+        items[2] = block_map[(x + 4) / 8][(y + 4) / 8];
+        block_map[(x + 4) / 8][(y + 4) / 8] = 0;        
+      }
+      else if (items[3] == 0)
+      {
+        items[3] = block_map[(x + 4) / 8][(y + 4) / 8];
+        block_map[(x + 4) / 8][(y + 4) / 8] = 0;        
+      }
+      else
+      {
+
+      }
+    }
     Sprites::drawExternalMask(x, y, pli, plm, 0, 0);
     if (t1h > 0)
     {
       Sprites::drawExternalMask(t1x, t1y, teki, teki_mask, 0, 0);
+    }
+    if (t2h > 0)
+    {
+      Sprites::drawExternalMask(t2x, t2y, teki, teki_mask, 0, 0);
     }
   }
   else if(mode == 1)
@@ -216,6 +345,10 @@ void loop() {
       if (t1h > 0)
       {
         Sprites::drawExternalMask(t1x, t1y, teki, teki_mask, 0, 0);
+      }
+      if (t2h > 0)
+      {
+        Sprites::drawExternalMask(t2x, t2y, teki, teki_mask, 0, 0);
       }
       if (arduboy.pressed(A_BUTTON) == 1 && alock == 0) {
         alock = 1;
@@ -236,6 +369,7 @@ void loop() {
         alock = 1;
         mode = 0;
         init_num();
+        init_set();
       }
       if (arduboy.pressed(A_BUTTON) == 0)
       {
@@ -256,15 +390,20 @@ void init_num(void)
 
   t1x = 32;
   t1y = 32;
-  t1h = 1;
+  t1h = 30;
 
   count = 0;
-
+  items[0] = 0;
+  items[1] = 0;
+  items[2] = 0;
+  items[3] = 0;
 }
 void init_set(void) {
   char i, j;
   char rani = 0;
   char ranb = 0;
+  t1h = 5;
+  t2h = 5;
   for (i = 0; i <= 11; i++) {
     for (j = 0; j <= 7; j++) {
       if (random(10) == 0) {
@@ -274,7 +413,7 @@ void init_set(void) {
       } else if (random(20) == 0) {
         rani = random(4);
         if (rani == 0) {
-          rani = 5;
+          rani = 14;
         } else if (rani == 1) {
           rani = 7;
         } else if (rani == 2) {
@@ -287,6 +426,43 @@ void init_set(void) {
     }
   }
   block_map[random(12)][random(8)] = 1;
+  do
+  {
+    x = random(12);
+    y = random(8);
+  }
+  while (block_map[x][y] == 1);
+  block_map[x][y] = 0;
+
+  do
+  {
+    t1x = random(12);
+    t1y = random(8);
+
+  }
+  while  (t1x == x && t1y == y);
+  if (block_map[t1x][t1y] == 20)
+  {
+    block_map[t1x][t1y] = 0;
+  }
+    do
+  {
+    t2x = random(12);
+    t2y = random(8);
+
+  }
+  while  (t2x == x && t2y == y);
+  if (block_map[t2x][t2y] == 20)
+  {
+    block_map[t2x][t2y] = 0;
+  }
+  x *= 8;
+  y *= 8;
+  t1x *= 8;
+  t1y *= 8;
+  
+  t2x *= 8;
+  t2y *= 8;
 }
 void draw_map(void) {
   char i, j;
@@ -296,7 +472,7 @@ void draw_map(void) {
         arduboy.drawBitmap(i * 8, j * 8, block, 8, 8, WHITE);
       } else if (block_map[i][j] == 19) {
         arduboy.drawBitmap(i * 8, j * 8, flower, 8, 8, WHITE);
-      } else if (block_map[i][j] == 5) {
+      } else if (block_map[i][j] >= 11 && block_map[i][j] <= 14) {
         arduboy.drawBitmap(i * 8, j * 8, f_wand, 8, 8, WHITE);
       } else if (block_map[i][j] == 7) {
         arduboy.drawBitmap(i * 8, j * 8, h_potion, 8, 8, WHITE);
@@ -307,11 +483,36 @@ void draw_map(void) {
       }
     }
   }
-  if (hp > 0)
+
+  for (i = 0;i < 4; i++)
   {
-    for (i = 0;i < hp; i++)
+    if (items[i] >= 11 && items[i] <= 14)
     {
-      arduboy.drawBitmap((i * 8) + 96, 0, heart, 8, 8, WHITE);
+      arduboy.drawBitmap((i * 8) + 96, 16, f_wand, 8, 8, WHITE);
     }
+    else if (items[i] == 7)
+    {
+      arduboy.drawBitmap((i * 8) + 96, 16, h_potion, 8, 8, WHITE);
+    }
+    else if (items[i] == 8)
+    {
+      arduboy.drawBitmap((i * 8) + 96, 16, w_potion, 8, 8, WHITE);        
+    }
+
+
   }
+  for (i = 0;i < hp; i++)
+  {
+    
+    arduboy.drawBitmap((i * 8) + 96, 0, heart, 8, 8, WHITE);
+  }
+  if (items[cur] >= 11 && items[cur] <= 14)
+  {
+    for (i = 0;i < items[cur] - 10; i++)
+    {
+      
+      arduboy.drawBitmap((i * 8) + 96, 8, thun, 8, 8, WHITE);
+    } 
+  }
+  arduboy.drawBitmap((cur * 8) + 96, 16, box, 8, 8, WHITE);
 }
