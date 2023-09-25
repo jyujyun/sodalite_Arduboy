@@ -1,10 +1,10 @@
 # sodalite_Arduboy
 
-==How to play==
-Use items ... A
-Change items ... B
-Throw away items ... hold B and press A
-==items==
-Wand(q) ... Shoot a magic ball(Can be used 4 times)
-Health potion(+) ... Heal your hert
-Warp potion(>) ... Warp to next floor
+==How to play==<br>
+Use items ... A<br>
+Change items ... B<br>
+Throw away items ... hold B and press A<br>
+==items==<br>
+Wand(q) ... Shoot a magic ball(Can be used 4 times)<br>
+Health potion(+) ... Heal your hert<br>
+Warp potion(>) ... Warp to next floor<br>
