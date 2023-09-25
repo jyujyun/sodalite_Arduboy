@@ -1,10 +1,19 @@
+/*
+============
+  SODALITE
+============
+ver 1.0
+created by jyujyun
+
+My homepage  https://3shokudango.web.fc2.com
+Arduboy page https://community.arduboy.com/u/jyujyun
+*/
+
 #include <Arduboy2.h>
 
 Arduboy2 arduboy;
 
-// ============================================================================
-
-#include "dango.h"
+#include "image.h"
 char snum = 19;
 void setup() {
 
@@ -26,6 +35,8 @@ char muteki = 0;
 int t1x = 32;
 int t1y = 32;
 char t1h = 30;
+
+int kaisu = 0;
 
 int t2x = 32;
 int t2y = 32;
@@ -153,7 +164,7 @@ void loop() {
         t1h -= 1;
       }
 
-      if (t2h == 1 && !(t1x + 8 >= t2x && t1x <= t2x + 8 && t1y + 8 >= t2y && t1y <= t2y + 8)) {
+      if (t2h == 1 && !(t1x + 8 >= t2x && t1x <= t2x + 8 && t1y + 8 >= t2y && t1y <= t2y + 8 && t1h == 1)) {
         if (x < t2x && t2x > 0) {
 
           if (t2x % 8 == 0 && (block_map[(t2x / 8) - 1][t2y / 8] > snum || (t2y % 8 != 0 && block_map[(t2x / 8) - 1][(t2y / 8) + 1] > snum))) {
@@ -219,18 +230,18 @@ void loop() {
           items[cur] = 0;
         }
         if (balls[0][3] == 0) {
-          balls[0][0] = x;
-          balls[0][1] = y;
+          balls[0][0] = x + 2;
+          balls[0][1] = y + 2;
           balls[0][2] = muki;
           balls[0][3] = 1;
         } else if (balls[1][3] == 0) {
-          balls[1][0] = x;
-          balls[1][1] = y;
+          balls[1][0] = x + 2;
+          balls[1][1] = y + 2;
           balls[1][2] = muki;
           balls[1][3] = 1;
         } else if (balls[2][3] == 0) {
-          balls[2][0] = x;
-          balls[2][1] = y;
+          balls[2][0] = x + 2;
+          balls[2][1] = y + 2;
           balls[2][2] = muki;
           balls[2][3] = 1;
         }
@@ -365,6 +376,8 @@ void loop() {
       arduboy.drawBitmap(0, 0, sodalite, 128, 64, WHITE);
       arduboy.setCursor(56, 32);
       arduboy.print(F("PRESS A"));
+      arduboy.setCursor(56, 48);
+      arduboy.print(F("2023 JYUJYUN"));
       if (arduboy.pressed(A_BUTTON) == 1 && alock == 0) {
         alock = 1;
         mode = 0;
@@ -383,6 +396,7 @@ void init_num(void)
   init_set();
   x = 64;
   y = 32;
+  kaisu = 0;
   muki = 0;
   hp = 4;
   muteki = 0;
@@ -390,10 +404,10 @@ void init_num(void)
 
   t1x = 32;
   t1y = 32;
-  t1h = 30;
+  t1h = 60;
 
   count = 0;
-  items[0] = 0;
+  items[0] = 14;
   items[1] = 0;
   items[2] = 0;
   items[3] = 0;
@@ -402,8 +416,9 @@ void init_set(void) {
   char i, j;
   char rani = 0;
   char ranb = 0;
-  t1h = 5;
-  t2h = 5;
+  t1h = 10;
+  t2h = 10;
+  kaisu += 1;
   for (i = 0; i <= 11; i++) {
     for (j = 0; j <= 7; j++) {
       if (random(10) == 0) {
@@ -411,7 +426,7 @@ void init_set(void) {
       } else if (random(5) == 0) {
         block_map[i][j] = 19;
       } else if (random(20) == 0) {
-        rani = random(4);
+        rani = random(4 + (kaisu / 8));
         if (rani == 0) {
           rani = 14;
         } else if (rani == 1) {
@@ -506,6 +521,11 @@ void draw_map(void) {
     
     arduboy.drawBitmap((i * 8) + 96, 0, heart, 8, 8, WHITE);
   }
+  for (i = 0;i < 8; i++)
+  {
+    
+    arduboy.drawBitmap(88, (i * 8), kabe, 8, 8, WHITE);
+  } 
   if (items[cur] >= 11 && items[cur] <= 14)
   {
     for (i = 0;i < items[cur] - 10; i++)
@@ -514,5 +534,8 @@ void draw_map(void) {
       arduboy.drawBitmap((i * 8) + 96, 8, thun, 8, 8, WHITE);
     } 
   }
+  arduboy.drawBitmap(96, 40, yaji, 8, 8, WHITE);
+  arduboy.setCursor(104, 40);
+  arduboy.print(kaisu);
   arduboy.drawBitmap((cur * 8) + 96, 16, box, 8, 8, WHITE);
 }
