@@ -2,7 +2,7 @@
 ============
   SODALITE
 ============
-ver 1.0
+ver 1.1
 created by jyujyun
 
 My homepage  https://3shokudango.web.fc2.com
@@ -18,7 +18,6 @@ char snum = 19;
 void setup() {
 
   arduboy.begin();
-  arduboy.clear();
 
   arduboy.initRandomSeed();
 
@@ -53,6 +52,8 @@ char alock = 0;
 char xlock = 0;
 char i = 0;
 
+char init_keylock = 0;
+
 int balls[3][4];
 
 char block_map[12][8];
@@ -60,7 +61,7 @@ char block_map[12][8];
 void loop() {
   if (!arduboy.nextFrame()) return;
   arduboy.clear();
-
+  arduboy.pollButtons();
   if (mode == 0)
   {
 
@@ -69,45 +70,60 @@ void loop() {
     {
       muteki -= 1;
     }
-    if (arduboy.pressed(LEFT_BUTTON) == 1 && x > 0) {
-      pli = m5;
-      plm = m5_mask;
-      muki = 0;
-      if (x % 8 == 0 && (block_map[(x / 8) - 1][y / 8] > snum || (y % 8 != 0 && block_map[(x / 8) - 1][(y / 8) + 1] > snum))) {
-
-      } else {
-        x -= 1;
+    if ((arduboy.justPressed(LEFT_BUTTON) || arduboy.justPressed(RIGHT_BUTTON) || arduboy.justPressed(UP_BUTTON) || arduboy.justPressed(DOWN_BUTTON) || arduboy.justPressed(A_BUTTON) || arduboy.justPressed(B_BUTTON)) && alock == 0)
+    {
+      if (t1h > 1)
+      {
+        t1h = 1;
       }
-    }
-    //プレイヤー処理
-    if (arduboy.pressed(UP_BUTTON) == 1 && y > 0) {
-      pli = m3;
-      plm = m1_mask;
-      muki = 1;
-      if (y % 8 == 0 && (block_map[x / 8][(y / 8) - 1] > snum || (x % 8 != 0 && block_map[(x / 8) + 1][(y / 8) - 1] > snum))) {
-
-      } else {
-        y -= 1;
+      if (t2h > 1)
+      {
+        t2h = 1;
       }
+      init_keylock = 0;
     }
-    if (arduboy.pressed(RIGHT_BUTTON) == 1 && x < 88) {
-      pli = m7;
-      plm = m7_mask;
-      muki = 2;
-      if (x % 8 == 0 && (block_map[(x / 8) + 1][y / 8] > snum || (y % 8 != 0 && block_map[(x / 8) + 1][(y / 8) + 1] > snum))) {
+    if (init_keylock == 0)
+    {
+      if (arduboy.pressed(LEFT_BUTTON) == 1 && x > 0) {
+        pli = m5;
+        plm = m5_mask;
+        muki = 0;
+        if (x % 8 == 0 && (block_map[(x / 8) - 1][y / 8] > snum || (y % 8 != 0 && block_map[(x / 8) - 1][(y / 8) + 1] > snum))) {
 
-      } else {
-        x += 1;
+        } else {
+          x -= 1;
+        }
       }
-    }
-    if (arduboy.pressed(DOWN_BUTTON) == 1 && y < 56) {
-      pli = m1;
-      plm = m1_mask;
-      muki = 3;
-      if (y % 8 == 0 && (block_map[x / 8][y / 8 + 1] > snum || (x % 8 != 0 && block_map[(x / 8) + 1][(y / 8) + 1] > snum))) {
+      //プレイヤー処理
+      if (arduboy.pressed(UP_BUTTON) == 1 && y > 0) {
+        pli = m3;
+        plm = m1_mask;
+        muki = 1;
+        if (y % 8 == 0 && (block_map[x / 8][(y / 8) - 1] > snum || (x % 8 != 0 && block_map[(x / 8) + 1][(y / 8) - 1] > snum))) {
 
-      } else {
-        y += 1;
+        } else {
+          y -= 1;
+        }
+      }
+      if (arduboy.pressed(RIGHT_BUTTON) == 1 && x < 88) {
+        pli = m7;
+        plm = m7_mask;
+        muki = 2;
+        if (x % 8 == 0 && (block_map[(x / 8) + 1][y / 8] > snum || (y % 8 != 0 && block_map[(x / 8) + 1][(y / 8) + 1] > snum))) {
+
+        } else {
+          x += 1;
+        }
+      }
+      if (arduboy.pressed(DOWN_BUTTON) == 1 && y < 56) {
+        pli = m1;
+        plm = m1_mask;
+        muki = 3;
+        if (y % 8 == 0 && (block_map[x / 8][y / 8 + 1] > snum || (x % 8 != 0 && block_map[(x / 8) + 1][(y / 8) + 1] > snum))) {
+
+        } else {
+          y += 1;
+        }
       }
     }
     //敵処理
@@ -161,7 +177,7 @@ void loop() {
       }
       else if (t1h > 1)
       {
-        t1h -= 1;
+        //t1h -= 1;
       }
 
       if (t2h == 1 && !(t1x + 8 >= t2x && t1x <= t2x + 8 && t1y + 8 >= t2y && t1y <= t2y + 8 && t1h == 1)) {
@@ -211,7 +227,7 @@ void loop() {
       }
       else if (t2h > 1)
       {
-        t2h -= 1;
+        //t2h -= 1;
       }
 
     }
@@ -374,6 +390,9 @@ void loop() {
   {
 
       arduboy.drawBitmap(0, 0, sodalite, 128, 64, WHITE);
+      arduboy.setCursor(96, 0);
+      arduboy.print(F("V1.1"));
+
       arduboy.setCursor(56, 32);
       arduboy.print(F("PRESS A"));
       arduboy.setCursor(56, 48);
@@ -478,6 +497,7 @@ void init_set(void) {
   
   t2x *= 8;
   t2y *= 8;
+  init_keylock = 1;
 }
 void draw_map(void) {
   char i, j;
